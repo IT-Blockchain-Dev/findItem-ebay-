@@ -27,7 +27,7 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ["18.191.121.108"]
 # ALLOWED_HOSTS = ["3.137.204.209"]
-ALLOWED_HOSTS=['*']
+ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 
@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 
 ROOT_URLCONF = 'myproject.urls'
@@ -85,10 +85,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'finditem',
-        'USER': 'root',
-        'PASSWORD':'',
-        'HOST':'localhost',
-        'PORT':'3306',
+        'USER': 'kevin',
+        'PASSWORD': 'kevin1234',
+        'HOST': '52.23.167.164',
+        'PORT': '3306',
     }
 }
 
