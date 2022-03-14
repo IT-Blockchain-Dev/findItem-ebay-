@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'finditem',
+        'NAME': 'ebayfinditem',
         'USER': 'kevin',
         'PASSWORD': 'kevin1234',
         'HOST': '52.23.167.164',
