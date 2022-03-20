@@ -74,15 +74,20 @@ def uploadData(request):
     buy_format = request.data['format']
     category_id = request.data['category']
     item_list = []
+
     print(min_price, max_price, zip_code, review,
           ranking, condition, buy_format, category_id)
     index = 1
     for keyword in keyword_list:
+        # keyword = keyword.replace(" ",",")
+        print(keyword)
         item_info = findItemsAdvanced(
             keyword, min_price, max_price, zip_code, review, ranking, condition, category_id, buy_format)
-        item_info['id'] = index
-        item_list.append(item_info)
-        index = index + 1
+        # print("item_info=>", item_info)
+        if item_info != None:
+            item_info['id'] = index
+            item_list.append(item_info)
+            index = index + 1
 
     return Response(item_list)
 
@@ -111,42 +116,56 @@ def findItemsAdvanced(keyword, min_price, max_price, zip_code, review, ranking, 
                 {'name': 'FeedbackScoreMin',
                  'value': review}
             ],
-            'categoryId': category_id,
-            'buyPorstalCode': zip_code,
+            # 'categoryId': category_id,
+            # 'buyerPostalCode': zip_code,
             'affiliate': {'trackingId': 1},
             'sortOrder': 'PricePlusShippingLowest',
         }
 
         response = api.execute('findItemsAdvanced', api_request)
         res = response.dict()
+        # print("res1=>", res)
 
         try:
             item_array = res['searchResult']['item']
-            item = item_array[int(ranking)]
+            ranking_int = int(ranking) - 1
+            item = item_array[ranking_int]
             item_id = item['itemId']
+            print("item_id=>", item_id)
             condition = item['condition']['conditionDisplayName']
             price = item['sellingStatus']['currentPrice']['value']
             title = item['title']
             url = item['viewItemURL']
             shipping_cost = item['shippingInfo']['shippingServiceCost']['value']
             shipping_handlingtime = item['shippingInfo']['handlingTime']
-            print(price, title, url, shipping_cost, shipping_handlingtime)
+            # print(price, title, url, shipping_cost, shipping_handlingtime)
             try:
                 token1 = 'AgAAAA**AQAAAA**aAAAAA**KlviYQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6MHlYapDpOEqAydj6x9nY+seQ**d8oGAA**AAMAAA**zSMLmj+enSYAP9QMNZTqiPqso2+OtzbE7iPpz1p82DWfR0Og+7kXbyiEoGG6x0RkMYQcZ9ZXPkqfDHnRCVu4zKQry7gFq2ean5Kxu4g8B6Hj76Eu3Li6mTu/d1+jJwbGSl8IVjE2Ieo7MZRDUQwjnuYOSElFw5gTfLSY5Wa1ZdEGnaqltPY0yGtvtUYmkVvNCCy/5vdA/wqce0ixfiM4QnCj3vdWQzFasm33RhNiaisTxz9Cr6KkkD8IM2fR4JhUHhB/c2xS9hhxDMA6E4lnsxh82LMKh+O8xro3A+++j9iJUna6mCnc82DuhQGLM5sTCSaZeJlhr+RgjWKekbFz0pqXLq4Se/Y2GcR040ipKCbMy72vyfeQzMcfY0gsXGXOsBrHt9wHpAhWNU1wZnZjjyb8ycDn//ggxK5QkfmrOiJb3yHLXS/Fhrh1ZZ9bIrjR4i8s0h+DMegLFU7VOsXjVnkATJdb0R2qP7Uakm1Tg0Wb9Lk+pTLev5fgdyrIrkoFLVF35E+TfL8Ye1RQBArDYV9iDd3Ct4c35h97wqOYmGwG8Kv23NpGFwFSHiqmbY5uWnK9YI44ny6vECQPabrynYC5T5f4KyEb6GJHbKi0IC2uhTthSVmbGEnrbQ1lHGo2u65ZirBfZZJpc/88VD4EZ7vd/8ke8ypzwKGIwMpf4+NrjC8Pt1y4b/Gshkm+cE8TpDJnEP8jCLPWdvS2XHhGTS92ius3ebA/BfVyXAqIPveJeyWaV/7CZefs7cq/kZwX'
                 api = Trading(domain='api.ebay.com', appid='arsensah-myapp-PRD-41d9f5f51-f3aac787',
                               certid='PRD-1d9f5f511ac9-005d-4560-8eee-672f', devid='96d594f7-cbdf-434d-b1ed-42d5b1a26adc',
                               token=token1, config_file=None, siteid=0)
                 api_request = {
+                    'IncludeItemSpecifics': 'true',
                     'ItemID': item_id,
                     'DetailLevel': 'ReturnAll'
                 }
                 response = api.execute('GetItem', api_request)
                 res = response.dict()
+                ItemSpecifics = res['Item']['ItemSpecifics']['NameValueList']
+                specifics = ''
+                for item_specific in ItemSpecifics:
+                    name = item_specific['Name']
+                    value = item_specific['Value']
+
+                    if isinstance(value, list) == False:
+                        if value != 'NA':
+                            specifics = specifics + name + ':' + value + ','
+                print('hi', specifics)
                 picture_urls = res['Item']['PictureDetails']['PictureURL']
-                description = res['Item']['Description']
-                print(picture_urls, description)
-                item_info = {"title": title, "item_id": item_id, "price": price, "time": shipping_handlingtime, "cost": shipping_cost, "condition": condition, "url": url,
+                description = specifics
+                item_info = {"keyword": keyword, "title": title, "item_id": item_id,  "price": price, "condition": condition, "time": shipping_handlingtime, "cost": shipping_cost, "condition": condition, "url": url,
                              "description": description, "picture_urls": picture_urls}
+
                 return item_info
             except ConnectionError as e:
                 print(e)
