@@ -86,6 +86,7 @@ def uploadData(request):
         # keyword = keyword.replace(" ",",")
         token_id = index % 4
         token = token_list[token_id]
+        index = index + 1
         print("token=>", token)
         item_info = findItemsAdvanced(
             token, keyword, min_price, max_price, zip_code, review, ranking, condition, category_id, buy_format)
@@ -93,7 +94,6 @@ def uploadData(request):
         if item_info != None:
             item_info['id'] = index
             item_list.append(item_info)
-            index = index + 1
 
     return Response(item_list)
 
