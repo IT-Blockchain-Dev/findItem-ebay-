@@ -61,13 +61,25 @@ def uploadData(request):
     csv_file = request.FILES['file']
     if not csv_file.name.endswith('.csv'):
         print("type error")
+        return Response("type error")
+
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
+    io_string1 = io.StringIO(data_set)
     keyword_list = []
     next(io_string)
+
+    row_count = 0
+
     for column in csv.reader(io_string, delimiter=',', quotechar="|"):
+        row_count = row_count + 1
+    if (row_count > 451):
+        return Response("count overhead")
+
+    for column in csv.reader(io_string1, delimiter=',', quotechar="|"):
         keyword = column[0]
         keyword_list.append(keyword)
+        print("keyword=>", keyword)
 
     min_price = request.data['minPrice']
     max_price = request.data['maxPrice']
@@ -79,7 +91,7 @@ def uploadData(request):
     category_id = request.data['category']
     item_list = []
 
-    print(min_price, max_price, zip_code, review,
+    print(keyword_list, min_price, max_price, zip_code, review,
           ranking, condition, buy_format, category_id)
     index = 0
     for keyword in keyword_list:
